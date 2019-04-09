@@ -1,0 +1,119 @@
+% HMC Math dept HW template example
+% v0.04 by Eric J. Malm, 10 Mar 2005
+\documentclass[12pt,letterpaper,boxed]{hmcpset}
+
+% set 1-inch margins in the document
+\usepackage[margin=1in]{geometry}
+
+% include this if you want to import graphics files with /includegraphics
+\usepackage{graphicx,siunitx,cancel,scrextend,amsthm, amssymb, enumerate,
+  hyperref, parskip, mathtools, xcolor, amsfonts, xcolor}
+
+\input{macros.tex}
+
+\DeclareSIUnit\year{yr}
+\newcommand{\inden}{\begin{addmargin}[2em]{0em}}
+\renewcommand{\mod}[3]{#1 \equiv #2 \ (\mbox{mod } #3)}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Mod}[1]{\ (\mathrm{mod}\ #1)}
+
+\newcommand{\highlight}[1]{%
+  \colorbox{red!50}{$\displaystyle#1$}}
+
+\DeclarePairedDelimiter\ceil{\lceil}{\rceil}
+\DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
+
+\name{Joseph Gardi}					%% insert your name
+\class{Big data} 		%% replace spaces (\ \ \ ) with section #
+\assignment{Homework 7}
+\duedate{Due: Monday April 7, 2019}
+
+\begin{document}
+\begin{problem}[1]
+\textbf{(Murphy 11.3 - EM for Mixtures of Bernoullis)} Show that the M step for ML estimation
+of a mixture of Bernoullis is given by
+\[
+    \mu_{kj} = \frac{\sum_i r_{ik}x_{ij}}{\sum_i r_{ik}}.
+\]
+Show that the M step for MAP estimation of a mixture of Bernoullis with a $\beta(a,b)$ prior
+is given by
+\[
+    \mu_{kj} = \frac{\left(\sum_i r_{ik}x_{ij}\right) + a - 1}{\left(\sum_i r_{ik}\right) + a + b - 2}.
+\]
+\end{problem}
+\begin{solution}
+  I used the solution. \\
+  The likelihood is,
+  \begin{align*}
+    \sum_- \sum_k r_{ik} log P(x_i | \theta_k) \\
+    &= sum_i \sum_k r_{ik} \sum_j (x_{ij}log \mu_{kj} + (1 - x_{ij})log(1 - \mu_{kj}))
+  \end{align*}
+  To optimize I will take the derivative with respect to $\mu_{kj}$, set it to zero
+  and solve,
+  \begin{align*}
+    \frac{\partial L}{\partial \mu_{kj}} &= \sum_i r_{ij} (\frac{x_{ij}}{\mu_{kj}} - \frac{1 - x_{ij}}{1 - \mu_{kj}}) \\
+                         &= \sum_i r_{ij} (\frac{x_{ij} - \mu{kj}}{\mu_{kj}(1 - \mu_{kj})}) \\
+                         &= \frac{1}{\mu_{kj}(1 - \mu_{kj})}\sum_i r_{ik}(x_{ij} - \mu_{kj}) = 0 \
+                           \implies \sum_i r_{ik} x_{ij} &= \mu_{kj} \sum_i r_{ik}
+  \end{align*}
+  this gives the desired result. \\
+  Now for the MAP part. The likihood with prior is,
+  \begin{align*}
+   \sum_- \sum_k r_{ik} log P(x_i | \theta_k) + log P(\mu_k) \\
+    &= sum_i \sum_k r_{ik} \sum_j (x_{ij}log \mu_{kj} + (1 - x_{ij})log(1 - \mu_{kj})) + (a - 1) log \mu_{kj} + (b - 1) log(1 - \mu_{kj})
+  \end{align*}
+  Take derivatives and set to zero to find optmial $\mu_{kj}$,
+  \begin{align*}
+    \frac{\partial L}{\partial \mu} &= \sum_i (\frac{r_{ik}x_{ij} + a - 1}{\mu_{kj}} - \frac{r_{ik}(1 - x_{ij}) + b - 1}{1 - \mu_{kj}}) \\
+                    &=  \frac{1}{\mu_{kj}(1 - \mu_{kj})} \sum_i r_{ik} x_{ij} - r_{ik} \mu_{kj} + a - 1 - \mu_{kj}a + \mu_{kj} - \mu_{kj} - \mu_{kj}b + \mu_{kj} \\
+                    &= \frac{1}{\mu_{kj}(1 - \mu_{kj})} (\sum_i r_{ik} x_{ij} - (\sum_ir_{ik} + a + b - 2)\mu_{kj} + a - 1) = 0 \\
+    \implies \sum_i r_{ik}x_{ij} + a - 1 &= (\sum_k r_{ik} + a + b - 2)\mu_{kj}
+  \end{align*}
+  That gives the desired result. 
+  \end{solution}
+\newpage
+
+
+
+\begin{problem}[2]
+\textbf{(Lasso Feature Selection)} 
+In this problem, we will use the online news popularity dataset we used in hw2pr3. In the starter code, we have already parsed the data for you. However, you might need internet connection to access the data and therefore successfully run the starter code.
+\newline
+\newline
+First, ignoring undifferentiability at $x=0$, take $\frac{\partial |x|}{\partial x}
+= \mathrm{sign} (x)$. Using this, show that $\nabla \|\xx\|_1 = \mathrm{sign}(\xx)$ where $\mathrm{sign}$ is applied
+elementwise. Derive the gradient of the $\ell_1$ regularized linear regression objective
+\begin{align*}
+    \text{minimize: } & \|A\xx - \bb\|_2^2 + \lambda \|\xx\|_1
+\end{align*}
+
+Then, implement a gradient descent based solution of the above optimization problem for this data. Produce
+the convergence plot (objective vs. iterations) for a non-trivial value of $\lambda$.
+In the same figure (and different axes) produce a `regularization path' plot. Detailed
+more in section 13.3.4 of Murphy, a regularization path is a plot of the optimal weight on
+the $y$ axis at a given regularization strength $\lambda$ on the $x$ axis. Armed with this
+plot, provide an ordered list of the top five features in predicting the log-shares of a news
+article from this dataset (with justification).
+\end{problem}
+\begin{solution}
+  \begin{align*}
+    \nabla \|\xx\|_1 =
+    \begin{Bmatrix}
+      \partial \|\xx\|_1 / \partial \xx_1 \\ \vdots 
+    \end{Bmatrix} =
+    \begin{Bmatrix}
+      sign(\xx_1) \\ \vdots
+    \end{Bmatrix}
+    = sign(\xx)
+  \end{align*}
+  So now I can find the gradient of my objective. Recall that $\nabla \|A\xx - \bb
+  \|_2^2 = 2A^T(A\xx-\bb)$.
+  \begin{align*}
+    2A^T(A\xx - \bb) + \lambda sign(\xx)
+  \end{align*}
+  I used the solution for the code part.
+  The most important features were timedelta, weekday\_is\_wednesday, weekday\_is\_thursday,
+ weekday\_is\_friday, weekday\_is\_saturday.
+\end{solution}
+
+\end{document}
